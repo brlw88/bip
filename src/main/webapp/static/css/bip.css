@@ -1,0 +1,7 @@
+.table-spec {
+   width: 80% !important;
+}
+
+.table-spec tr td:nth-of-type(1) {
+    font-weight: bold;
+}

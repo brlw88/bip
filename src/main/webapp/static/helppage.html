@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>URL Shortener - help page</title>
+    <link href="static/css/bootstrap.min.css" rel="stylesheet">
+    <link href="static/css/bootstrap-theme.min.css" rel="stylesheet">
+    <link href="static/css/bip.css" rel="stylesheet">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <script src="static/js/bootstrap.min.js"></script>
+<body>
+<div class="container">
+    <h1>URL Shortener</h1>
+    <h2>About</h2>
+    <p>This is <b>URL Shortener</b> - an HTTP service that serves to shorten URLs, with the following functionalties:</p>
+    <ul>
+        <li>Registration of web addresses (URLs) using API;</li>
+        <li>Redirect clients using the shortened URLs;</li>
+        <li>Getting service usage statistics.</li>
+    </ul>
+    <p>The service has two parts: configuration and user.</p>
+    <h2>Configuration part</h2>
+    <p>The configuration part is invoked using REST calls with JSON payload and is used for:</p>
+    <ul>
+        <li>Opening of accounts</li>
+        <li>Registration of URLs in the <b>URL Shortener</b> service</li>
+        <li>Getting usage statistics</li>
+    </ul>
+    <h3>Opening of accounts</h3>
+    <table class="table table-bordered table-condensed table-spec">
+        <tr>
+            <td class="col-md-3">HTTP Method</td>
+            <td class="col-md-9">POST</td>
+        </tr>
+        <tr>
+            <td>URI</td>
+            <td>/accounts</td>
+        </tr>
+        <tr>
+        <td>Request type</td>
+        <td>application/json</td>
+        </tr>
+        <tr>
+        <td>Request Body</td>
+        <td>JSON object with the following parameters:
+            <ul><li>AccountId (String, mandatory)</li></ul>
+            Example: <pre>{<br/>    AccountId : 'myAccountId'<br/>}</pre></td>
+        </tr>
+        <tr>
+            <td>Response type</td>
+            <td>application/json</td>
+        </tr>
+        <tr>
+            <td>Response</td>
+            <td>We distinguish the successful from the unsuccessful registration.
+                Unsuccessful registration occurs only if the concerned account ID
+                already exists. The parameters are as follows:
+                <ul><li>success: true | false</li>
+                <li>description: Description of status, for example: account with that ID already exists</li>
+                <li>password: Returns only if the account was successfully created.
+                Automatically generated password length of 8 alphanumeric characters.</li></ul>
+                Example: <pre>{<br/>    success: 'true', <br/>    description: 'Your account is opened', <br/>    password: 'xC345Fc0'</br/>}</pre>
+            </td>
+        </tr>
+    </table>
+    <h3>Registration of URLs</h3>
+    <table class="table table-bordered table-condensed table-spec">
+        <tr>
+            <td class="col-md-3">HTTP Method</td>
+            <td class="col-md-9">POST</td>
+        </tr>
+        <tr>
+            <td>URI</td>
+            <td>/register</td>
+        </tr>
+        <tr>
+            <td>Request type</td>
+            <td>application/json</td>
+        </tr>
+        <tr>
+            <td>Request headers</td>
+            <td>Authorization header with Basic authentication token</td>
+        </tr>
+        <tr>
+            <td>Request Body</td>
+            <td>JSON object with the following parameters:
+                <ul><li>url (mandatory, url that needs shortening)</li>
+                <li>redirectType : 301 | 302 (not mandatory, default 302)</li></ul>
+                Request Body Example:<pre>{<br/>    url: 'https://en.wikipedia.org/wiki/Lazy_initialization',<br/>    redirectType : 301<br/>}</pre>
+            </td>
+        </tr>
+        <tr>
+            <td>Response type</td>
+            <td>application/json</td>
+        </tr>
+        <tr>
+            <td>Response</td>
+            <td>Response parameters in case of successful registration are as follows:
+                <ul><li>shortUrl (shortened URL)</li></ul>
+                Example:<pre>{<br>    shortUrl: 'http://short.com/xYswlE'<br/>}</pre>
+            </td>
+        </tr>
+        <tr>
+            <td>Notes</td>
+            <td><ul>
+                <li>If execute /register command more than once with the same url for given account, the service will return the same short URL,
+                    it will neither generate new short URL, nor change the requestType;</li>
+                <li>Service allows to /register the same URL from different accounts, in that case the short URL's will be unique,
+                    it allows to collect per-account usage statistics;</li></ul>
+            </td>
+        </tr>
+    </table>
+    <h3>Retrieval of statistics</h3>
+    <table class="table table-bordered table-condensed table-spec">
+        <tr>
+            <td class="col-md-3">HTTP Method</td>
+            <td class="col-md-9">GET</td>
+        </tr>
+        <tr>
+            <td>URI</td>
+            <td>/statistic/{AccountId}</td>
+        </tr>
+        <tr>
+            <td>Request headers</td>
+            <td>Authorization header with Basic authentication token</td>
+        </tr>
+        <tr>
+            <td>Response type</td>
+            <td>application/json</td>
+        </tr>
+        <tr>
+            <td>Response</td>
+            <td>The server responds with a JSON object, <b>key:value</b> map, where the key
+                is the registered URL, and the value is the number of this URL redirects.<br/>
+                Example:<pre>{
+                    <br/>    https://en.wikipedia.org/wiki/Builder_pattern: 626,
+                    <br/>    https://en.wikipedia.org/wiki/Factory_method_pattern: 587,
+                    <br/>    https://en.wikipedia.org/wiki/Lazy_initialization: 604
+                <br/>}</pre>
+            </td>
+        </tr>
+        <tr>
+            <td>Notes</td>
+            <td><ul><li>Statistics is collected on per-account basis</li>
+                <li>The /statistic command doesn't include in output the URLs, for which there were no (zero) redirect requests;</li>
+            <li>The /statistic can be requested for all accounts by any authorized user, i.e. user is not limited to get only his/her statistics.</li></ul>
+            </td>
+        </tr>
+    </table>
+    <h2>Redirecting part</h2>
+    <p>The redirecting part redirecting the client on the configured address with the configured http status.</p>
+    <table class="table table-bordered table-condensed table-spec">
+        <tr>
+            <td class="col-md-3">HTTP Method</td>
+            <td class="col-md-9">GET</td>
+        </tr>
+        <tr>
+            <td>URI</td>
+            <td>/{shortUrl}</td>
+        </tr>
+    </table>
+    <h2>HTTP Response Codes</h2>
+    <p>The service returns the following response codes:</p>
+    <ul>
+        <li><b>200 OK</b> - request completed successfully, no data has been altered;</li>
+        <li><b>201 Created</b> - new account or redirection has been created;</li>
+        <li><b>301 or 302 Redirect</b> - redirection;</li>
+        <li><b>400 Bad Request</b> - request parameter(s) doesn't pass validation;</li>
+        <li><b>403 Forbidden</b> - user doesn't authenticate;</li>
+        <li><b>404 Not Found</b> - resource (for instance, short URL) is not found;</li>
+        <li><b>409 Conflict</b> - account with this AccountId already exists;</li>
+        <li><b>500 Internal Server Error</b> - unexpected server error, detailed information can be found in service log file.</li>
+    </ul>
+    <h2>Application created using:</h2>
+    <ul>
+        <li>Java 8</li>
+        <li>Tomcat 8.5</li>
+        <li>Spring, Spring JPA, Spring MVC, Spring Security</li>
+        <li>Hibernate</li>
+        <li>H2 Database</li>
+        <li>Jackson</li>
+        <li>Log4j</li>
+        <li>Maven</li>
+    </ul>
+    <h2>How to run</h2>
+    <p>To build project, execute command</p>
+    <code>mvn clean package</code>
+    <p>This command builds both <b>bip.war</b> and <b>bip.jar</b> and puts them in /target folder</p>
+    <p>Automatic deploy to tomcat server implemented using <b>cargo-maven2-plugin</b>, username & password for tomcat manager
+    located in <b>pom.xml</b> and are set to tomcat/tomcat. To deploy, execute command</p>
+    <code>mvn cargo:redeploy</code>
+    <p>Log file is located in <b>${catalina.home}/logs/bip.log</b>, where ${catalina.home} is the root of tomcat installation.
+    Log4j is set up for automatic rotation of log file.</p>
+    <p>To run test client, from root of project execute command</p>
+    <code>java -jar target/bip.jar</code>
+    <p>The test client:</p>
+    <ul>
+        <li>Adds 2 accounts;</li>
+        <li>From each account registers 5 redirections;</li>
+        <li>Creates and runs 30 threads, each thread than makes 100 random requests for redirection;</li>
+        <li>Gets statistics for both accounts, for each account there should be registered 3000 redirects.</li>
+    </ul>
+    <p>There are two implementations of redirect statistic collection:</p>
+    <ul>
+        <li>Using ReentrantLock syncronization, it's faster, but suitable only for single-node configuration;</li>
+        <li>Using Hibernate optimistic locking mechanism, it's slower, but can be used with cluster.</li>
+    </ul>
+    <p>The test client tests both implementation and shows runtime in ms. For accurate results, run test client 5-10 times for warm-up.</p>
+        </div>
+</body>
+</html>
