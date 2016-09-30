@@ -6,13 +6,12 @@ import me.brlw.bip.statistics.Statistics;
 import me.brlw.bip.utils.KeyedLock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.stereotype.Repository;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import java.util.concurrent.locks.Lock;
 
 /**
@@ -21,7 +20,6 @@ import java.util.concurrent.locks.Lock;
 
 @Service("redirectionService")
 @Repository
-@Transactional
 public class RedirectionServiceImpl implements RedirectionService
 {
     private static final int NUM_RETRIES = 50;
@@ -33,18 +31,15 @@ public class RedirectionServiceImpl implements RedirectionService
 
 
     @Override
-    @Transactional(readOnly = true)
     public Redirection findByUrlAndAccount(String url, Account account) {
         return redirectionRepository.findByUrlAndAccount(url, account);
     }
     @Override
-    @Transactional(readOnly = true)
     public Redirection findByShortUrl(String shortUrl) {
         return redirectionRepository.findByShortUrl(shortUrl);
     }
 
     @Override
-    @Transactional(readOnly = true)
     public Redirection findByRecno(long recNo) {
         return redirectionRepository.findByRecno(recNo);
     }
@@ -90,8 +85,6 @@ public class RedirectionServiceImpl implements RedirectionService
     }
 
     @Override
-    @Modifying
-    @Transactional(propagation = Propagation.NEVER)
     public void updateStatisticsUsingOptimisticLocking(Redirection thisRedirection)
     {
         final int NUM_RETRIES = 50;
@@ -114,5 +107,39 @@ public class RedirectionServiceImpl implements RedirectionService
         if (retries == NUM_RETRIES)
             throw new NumRetriesExceededException("Failed to update statistics: retries count exceeded");
     }
+
+
+    private Redirection incrementNumRedirects(Redirection thisRedirection)
+    {
+        if (redirectionRepository.incrementNumRedirects(thisRedirection) != 1) {
+            thisRedirection = redirectionRepository.findByRecno(thisRedirection.getRecno());
+            Statistics statistics = thisRedirection.getStatistics();
+            if (statistics != null)
+                return thisRedirection;
+            thisRedirection.addStatistics(new Statistics());
+            redirectionRepository.save(thisRedirection);
+        }
+        return null;
+    }
+
+    @Override
+    public void updateStatisticsUsingSQLUpdate(Redirection thisRedirection)
+    {
+        final int NUM_RETRIES = 50;
+
+        int retries = 0;
+        do {
+            try {
+                thisRedirection = incrementNumRedirects(thisRedirection);
+                if (thisRedirection == null)
+                    break;
+            } catch (ObjectOptimisticLockingFailureException | DataIntegrityViolationException ex) {
+            }
+        }
+        while (++retries < NUM_RETRIES);
+        if (retries == NUM_RETRIES)
+            throw new NumRetriesExceededException("Failed to update statistics: retries count exceeded");
+    }
+
 
 }

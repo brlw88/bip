@@ -1,22 +1,19 @@
-package me.brlw.bip.redirection;
+package me.brlw.bip.controllers;
 
 import me.brlw.bip.account.Account;
 import me.brlw.bip.account.AccountService;
-import me.brlw.bip.exception.NumRetriesExceededException;
-import me.brlw.bip.statistics.Statistics;
-import me.brlw.bip.statistics.StatisticsService;
-import me.brlw.bip.utils.KeyedLock;
+import me.brlw.bip.redirection.Redirection;
+import me.brlw.bip.redirection.RedirectionCreateResponseDto;
+import me.brlw.bip.redirection.RedirectionDto;
+import me.brlw.bip.redirection.RedirectionService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
-import javax.persistence.OptimisticLockException;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
@@ -24,7 +21,6 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.security.Principal;
 import java.util.Optional;
-import java.util.concurrent.locks.Lock;
 import java.util.stream.Collectors;
 
 /**
@@ -102,7 +98,8 @@ public class RedirectionController
                 if (!alternativeImplementation.isPresent())
                     redirectionService.updateStatisticsUsingKeyedLocks(thisRedirection);
                 else
-                    redirectionService.updateStatisticsUsingOptimisticLocking(thisRedirection);
+//                    redirectionService.updateStatisticsUsingOptimisticLocking(thisRedirection);
+                    redirectionService.updateStatisticsUsingSQLUpdate(thisRedirection);
 
                 LOG.debug("Successful redirect toURL: {}", () -> thisRedirection.getUrl());
             } else

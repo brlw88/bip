@@ -1,8 +1,10 @@
-package me.brlw.bip.statistics;
+package me.brlw.bip.controllers;
 
 import me.brlw.bip.account.Account;
 import me.brlw.bip.account.AccountService;
 import me.brlw.bip.exception.ResourceNotFoundException;
+import me.brlw.bip.statistics.Statistics;
+import me.brlw.bip.statistics.StatisticsService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;

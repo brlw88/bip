@@ -2,6 +2,7 @@ package me.brlw.bip.config.app;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import me.brlw.bip.controllers.ControllersPackageMarker;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -22,18 +23,14 @@ import java.util.List;
 
 @Configuration
 @EnableWebMvc
-@ComponentScan({ "me.brlw.bip.account",
-                 "me.brlw.bip.redirection",
-                 "me.brlw.bip.statistics",
-                 "me.brlw.bip.help",
-                 "me.brlw.bip.config"})
+@ComponentScan( basePackageClasses = {ControllersPackageMarker.class} )
 //@Import( {SecurityConfig.class})
 public class WebConfig extends WebMvcConfigurerAdapter{
+
     @Override
     public void extendMessageConverters(List<HttpMessageConverter<?>> converters) {
         converters.add(nonNullMappingJackson2HttpMessageConverter());
     }
-
 
     @Bean
     public MappingJackson2HttpMessageConverter nonNullMappingJackson2HttpMessageConverter() {

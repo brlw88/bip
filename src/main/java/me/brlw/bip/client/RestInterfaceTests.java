@@ -217,7 +217,7 @@ public class RestInterfaceTests
         testRedirection(false);
 
         System.out.println();
-        System.out.println(NUM_THREADS + " threads created, started and requesting redirection (Optimistic locking)...");
+        System.out.println(NUM_THREADS + " threads created, started and requesting redirection (SQL Update)...");
         testRedirection(true);
 
         System.out.println();

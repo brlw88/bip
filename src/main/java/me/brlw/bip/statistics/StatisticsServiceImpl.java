@@ -16,7 +16,6 @@ import java.util.stream.StreamSupport;
 
 @Service("statisticsService")
 @Repository
-@Transactional(readOnly = true)
 public class StatisticsServiceImpl implements StatisticsService {
     @Autowired
     private StatisticsRepository statisticsRepository;

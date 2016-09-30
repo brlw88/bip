@@ -1,4 +1,4 @@
-package me.brlw.bip.help;
+package me.brlw.bip.controllers;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

@@ -15,14 +15,12 @@ import java.util.stream.StreamSupport;
 
 @Service("accountService")
 @Repository
-@Transactional
 public class AccountServiceImpl implements AccountService
 {
     @Autowired
     private AccountRepository accountRepository;
 
     @Override
-    @Transactional(readOnly = true)
     public Account findByAccountId(String id)
     {
         return accountRepository.findByAccountId(id);

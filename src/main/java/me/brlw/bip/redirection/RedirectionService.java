@@ -1,6 +1,7 @@
 package me.brlw.bip.redirection;
 
 import me.brlw.bip.account.Account;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Created by ww on 09.09.16.
@@ -17,4 +18,6 @@ public interface RedirectionService
     void updateStatisticsUsingKeyedLocks(Redirection thisRedirection);
 
     void updateStatisticsUsingOptimisticLocking(Redirection thisRedirection);
+
+    void updateStatisticsUsingSQLUpdate(Redirection thisRedirection);
 }

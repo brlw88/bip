@@ -48,7 +48,7 @@ URL Shortener REST service
     </ul>
     <p>There are two implementations of redirect statistic collection:</p>
     <ul>
-        <li>Using ReentrantLock syncronization, it's faster, but suitable only for single-node configuration;</li>
-        <li>Using Hibernate optimistic locking mechanism, it's slower, but can be used with cluster.</li>
+        <li>Using ReentrantLock syncronization, it's pure Hibernate solution, suitable only for single-node configuration;</li>
+        <li>Using Hibernate DML Update query, it utilizes database locking, faster and can be used with cluster.</li>
     </ul>
     <p>The test client tests both implementation and shows runtime in ms. For accurate results, run test client 5-10 times for warm-up.</p>

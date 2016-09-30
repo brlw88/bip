@@ -19,19 +19,9 @@ public class BipAppInitializer implements WebApplicationInitializer
 {
     @Override
     public void onStartup(ServletContext container) throws ServletException {
-//        XmlWebApplicationContext rootContext = new XmlWebApplicationContext();
         AnnotationConfigWebApplicationContext rootContext = new AnnotationConfigWebApplicationContext();
-//        rootContext.setConfigLocation();
-//        rootContext.setConfigLocation("/WEB-INF/classes/META-INF/spring/datasource-tx-jpa.xml");
-        rootContext.scan("me.brlw.bip.account",
-                "me.brlw.bip.help",
-                "me.brlw.bip.redirection",
-                "me.brlw.bip.statistics",
-                "me.brlw.bip.config");
-
-//        rootContext.register(WebConfig.class);
-//        container.addListener(new ContextLoaderListener(rootContext));
-//        rootContext.start();
+        rootContext.register(RootConfig.class, JpaConfig.class);
+        container.addListener(new ContextLoaderListener(rootContext));
 
         AnnotationConfigWebApplicationContext servletContext = new AnnotationConfigWebApplicationContext();
         servletContext.register(WebConfig.class);
